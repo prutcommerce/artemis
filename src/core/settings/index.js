@@ -1,3 +1,4 @@
+import { getConnectUrl } from 'src/core/settings/get-connect-url'
 import { getEnvironment } from 'src/core/settings/get-environment'
 import { getDatabaseUri } from 'src/core/settings/get-database-uri'
 import { getDatabaseName } from 'src/core/settings/get-database-name'
@@ -14,4 +15,5 @@ export const settings = {
   getDatabaseName,
   getDatabaseUsername,
   getDatabasePassword,
+  getConnectUrl,
 }

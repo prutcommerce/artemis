@@ -13,14 +13,14 @@ services:
     volumes:
       - .:/srv/artemis
     depends_on:
-#      zookeeper:
-#        condition: service_healthy
-#      kafka:
-#        condition: service_healthy
+      zookeeper:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
       mariadb:
         condition: service_healthy
-#      connect:
-#        condition: service_healthy
+      connect:
+        condition: service_healthy
     networks:
       - prutcommerce
 
