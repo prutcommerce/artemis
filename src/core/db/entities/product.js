@@ -8,6 +8,8 @@ export const product = driver => driver.define(ENTITY_NAMES.product, {
     autoIncrement: true,
   },
   name: sequelize.DataTypes.STRING,
+  quantity: sequelize.DataTypes.FLOAT,
+  quantityUnit: sequelize.DataTypes.STRING,
 }, {
   underscored: true,
   timestamps: true,
