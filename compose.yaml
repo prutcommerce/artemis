@@ -1,0 +1,161 @@
+networks:
+  prutcommerce:
+    driver: bridge
+
+services:
+  artemis:
+    image: 'node:18.4'
+    container_name: artemis.dev
+    working_dir: /srv/artemis
+    command: 'yarn dev'
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/srv/artemis
+    depends_on:
+#      zookeeper:
+#        condition: service_healthy
+#      kafka:
+#        condition: service_healthy
+      mariadb:
+        condition: service_healthy
+#      connect:
+#        condition: service_healthy
+    networks:
+      - prutcommerce
+
+  deps:
+    image: 'node:18.4'
+    container_name: artemis.deps
+    working_dir: /srv/artemis
+    volumes:
+      - .:/srv/artemis
+    command: 'yarn install'
+
+  zookeeper:
+    image: 'confluentinc/cp-zookeeper:7.1.0'
+    container_name: artemis.zookeeper
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+      - ZOOKEEPER_CLIENT_PORT=2181
+    networks:
+      - prutcommerce
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "nc -z -v -w5 localhost 2181" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  kafka:
+    image: 'confluentinc/cp-kafka:7.1.0'
+    container_name: artemis.kafka
+    ports:
+      - '9092:9092'
+    environment:
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_BROKER_ID=1
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+      - KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS=5000
+    networks:
+      - prutcommerce
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "nc -z -v -w5 localhost 9092" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  connect:
+    image: 'confluentinc/cp-kafka-connect:7.1.0'
+    hostname: connect
+    container_name: artemis.kafka.connect
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8083:8083"
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: 'kafka:9092'
+      CONNECT_REST_ADVERTISED_HOST_NAME: connect
+      CONNECT_REST_PORT: 8083
+      CONNECT_GROUP_ID: prutcommerce-connect
+      CONNECT_CONFIG_STORAGE_TOPIC: prutcommerce_connect_configs
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 1000
+      CONNECT_OFFSET_STORAGE_TOPIC: prutcommerce_connect_offsets
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_TOPIC: prutcommerce_connect_status
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: 'false'
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: 'false'
+      CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components
+      CLASSPATH: /usr/share/confluent-hub-components/confluentik-kafka-connect-jdbc/lib/*
+
+    networks:
+      - prutcommerce
+    command:
+      - bash
+      - -c
+      - |
+        echo "Installing connector plugins..."
+        confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:10.4.1
+        
+        echo "Installing jdbc driver..."
+        
+        wget https://dlm.mariadb.com/2235293/Connectors/java/connector-java-3.0.4/mariadb-java-client-3.0.4.jar \
+          -O "/usr/share/confluent-hub-components/confluentinc-kafka-connect-jdbc/lib/mariadb-java-client-3.0.4.jar"
+        
+        echo "Launching Kafka Connect"
+        /etc/confluent/docker/run & sleep infinity
+    healthcheck:
+      test: 'nc -z -v -w5 localhost 8083'
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mariadb:
+    image: 'mariadb:10.7'
+    container_name: artemis.mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: admin
+    ports:
+      - '3306:3306'
+    networks:
+      - prutcommerce
+    healthcheck:
+      test: 'healthcheck.sh --connect'
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  akhq:
+    image: tchiotludo/akhq
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            docker-kafka-server:
+              properties:
+                bootstrap.servers: "kafka:9092"
+              schema-registry:
+                url: "http://schema:8081"
+              connect:
+                - name: "connect"
+                  url: "http://connect:8083"
+
+    ports:
+      - 1234:8080
+    networks:
+      - prutcommerce

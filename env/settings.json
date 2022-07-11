@@ -1,3 +1,10 @@
 {
-  "environment": "local"
+  "environment": "local",
+  "database": {
+    "host": "mariadb",
+    "port": "3306",
+    "name": "artemis_local",
+    "username": "root",
+    "password": "admin"
+  }
 }
