@@ -142,3 +142,16 @@ fabric.properties
 # End of https://www.toptal.com/developers/gitignore/api/jetbrains,visualstudiocode
 
 .idea
+
+### yarn ###
+# https://yarnpkg.com/advanced/qa#which-files-should-be-gitignored
+
+.pnp.*
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+!.yarn/.keep
+
+.dist
