@@ -850,22 +850,18 @@ __metadata:
     concurrently: 7.1.0
     copy-webpack-plugin: 10.2.4
     express: 4.18.1
-    express-graphql: 0.12.0
     graphql: 16.5.0
     kafkajs: 1.16.0
     lodash: 4.17.21
     mariadb: 3.0.0
-    morgan: 1.10.0
     nephele: "git+ssh://git@github.com/prutcommerce/nephele.git#0.1.0"
     nodemon: 2.0.16
-    ramda: 0.28.0
     raw-loader: 4.0.2
     regenerator-runtime: 0.13.9
     rxjs: 7.5.5
     sequelize: 6.19.0
     source-map-support: 0.5.21
     swc-loader: 0.2.0
-    umzug: 3.1.1
     webpack: 5.72.0
     webpack-cli: 4.9.2
     webpack-merge: 5.8.0

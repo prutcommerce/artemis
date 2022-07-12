@@ -1,14 +1,9 @@
 export * as yup from 'yup'
-export * as ramda from 'ramda'
-export * as umzug from 'umzug'
-export * as morgan from 'morgan'
 export * as lodash from 'lodash'
 export * as graphql from 'graphql'
 export * as mariadb from 'mariadb'
 export * as express from 'express'
 export * as sequelize from 'sequelize'
-export * as expressGraphql from 'express-graphql'
-export * as sourceMapSupport from 'source-map-support'
 
 export { default as axios } from 'axios'
 
