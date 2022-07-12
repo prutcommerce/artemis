@@ -34,7 +34,7 @@ const makeConfig = () => ({
 
 export const createProductSource = async () => {
   const params = {
-    name: 'artemis_unit_source',
+    name: 'artemis_product_source',
     config: makeConfig(),
     baseUrl: artemis.core.settings.getConnectUrl(),
   }
