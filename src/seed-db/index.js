@@ -1,10 +1,8 @@
-import { umzug } from 'src/deps'
-import { configs } from 'src/seed-db/configs'
+import { artemis } from 'src'
 
-export const seedDb = async () => {
-  const instance = new umzug.Umzug(configs())
+const configs = () => ({
+  settings: artemis.getSettings,
+  importer: require?.context('src/seed-db/seeds', true, /\.js$/),
+})
 
-  await instance.up()
-
-  console.log('Database seeds were successfully applied.')
-}
+export const seedDb = { configs }

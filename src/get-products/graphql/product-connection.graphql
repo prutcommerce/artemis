@@ -1,0 +1,4 @@
+type ProductConnection implements Connection {
+    edges:[ProductEdge!]!
+    pageInfo: PageInfo!
+}

@@ -1,10 +1,8 @@
-import { umzug } from 'src/deps'
-import { configs } from 'src/migrate-db/configs'
+import { artemis } from 'src'
 
-export const migrateDb = async () => {
-  const instance = new umzug.Umzug(configs())
+const configs = () => ({
+  settings: artemis.core.settings,
+  importer: require?.context('src/migrate-db/migrations', true, /\.js$/),
+})
 
-  await instance.up()
-
-  console.log('Database migrations were successfully applied.')
-}
+export const migrateDb = { configs }

@@ -1,3 +1,4 @@
+export * as yup from 'yup'
 export * as ramda from 'ramda'
 export * as umzug from 'umzug'
 export * as morgan from 'morgan'
@@ -10,3 +11,5 @@ export * as expressGraphql from 'express-graphql'
 export * as sourceMapSupport from 'source-map-support'
 
 export { default as axios } from 'axios'
+
+export { nephele } from 'nephele'

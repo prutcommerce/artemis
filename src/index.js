@@ -1,26 +1,27 @@
 import { core } from 'src/core'
 import { seedDb } from 'src/seed-db'
-import { createDb } from 'src/create-db'
-import { setupRest } from 'src/setup-rest'
-import { setupMaps } from 'src/setup-maps'
+import { nephele, yup } from 'src/deps'
 import { migrateDb } from 'src/migrate-db'
-import { setupGraph } from 'src/setup-graph'
+import { setupServer } from 'src/setup-server'
+import { getProducts } from 'src/get-products'
 import { setupConnect } from 'src/setup-connect'
 
 export const artemis = {
   core,
   seedDb,
   migrateDb,
-  setupMaps,
-  setupGraph,
+  getProducts,
 }
 
-setupMaps()
-  .then(createDb)
-  .then(migrateDb)
-  .then(seedDb)
+nephele.setupLogger()
+nephele.setupValidation(yup)
+nephele.setupMaps(core.settings)
+
+nephele.createDb(core.settings)
+  .then(nephele.migrateDb(migrateDb.configs()))
+  .then(nephele.seedDb(seedDb.configs()))
   .then(setupConnect)
-  .then(setupRest)
+  .then(nephele.setupRest(setupServer.configs()))
   .catch(error => console.error(error) || process.exit(1))
 
 

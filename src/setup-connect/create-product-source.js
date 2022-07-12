@@ -1,6 +1,6 @@
 import { artemis } from 'src'
+import { nephele } from 'src/deps'
 import { connectionUrl } from 'src/setup-connect/connection-url'
-import { createConnector } from 'src/setup-connect/create-connector'
 
 const makeConfig = () => ({
   'connector.class': 'io.confluent.connect.jdbc.JdbcSourceConnector',
@@ -39,5 +39,5 @@ export const createProductSource = async () => {
     baseUrl: artemis.core.settings.getConnectUrl(),
   }
 
-  await createConnector(params)
+  await nephele.setupConnect.createConnector(params)
 }

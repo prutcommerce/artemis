@@ -1,0 +1,4 @@
+type ProductEdge implements Edge {
+    node: Product!
+    cursor: ID!
+}
